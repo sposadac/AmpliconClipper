@@ -153,7 +153,7 @@ public:
 
     void clipNBasesFromFront(int n_bases)
     {
-        int curPos, toCut, overshoot, start, cLength = 0;
+        int curPos, toCut, overshoot, start, cLength = 0, softClipped = 0;
         char cCigar;
         std::stringstream newCIGAR;
 
@@ -177,6 +177,10 @@ public:
             {
                 toCut += cLength;
             }
+            if (cCigar == 'S')
+            {
+                softClipped = cLength;
+            }
 
             start = i+1;
         }
@@ -197,7 +201,7 @@ public:
         */
 
         this->CIGAR = newCIGAR.str();
-        this->POS = curPos - startOffset;
+        this->POS = curPos - startOffset - softClipped;
         this->SEQ.erase(0, toCut);
         if (this->QUAL != "*")
             this->QUAL.erase(0, toCut);
@@ -206,7 +210,7 @@ public:
     void clipNBasesFromBack(int n_bases)
     {
         std::string tempCigar;
-        int curPos, toCut, overshoot, start, cLength = 0;
+        int curPos, toCut, overshoot, start, cLength = 0, softClipped = 0;
         char cCigar;
         std::stringstream newCIGAR;
 
@@ -232,6 +236,10 @@ public:
             {
                 toCut += cLength;
             }
+            if (cCigar == 'S')
+            {
+                softClipped = cLength;
+            }
 
             start = i;
             --i;
@@ -253,7 +261,7 @@ public:
         newCIGAR += cCigar;
         */
 
-        this->EndPOS = curPos + endOffset;
+        this->EndPOS = curPos + endOffset + softClipped;
         this->CIGAR = newCIGAR.str();
         this->SEQ.erase(this->SEQ.length()-toCut, std::string::npos);
         if (this->QUAL != "*")
